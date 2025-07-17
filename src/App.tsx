@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
+import LoginPortal from './components/LoginPortal';
 import RandomGuideSelector from './components/RandomGuideSelector';
 import PasswordModal from './components/PasswordModal';
 import WinnerDisplay from './components/WinnerDisplay';
@@ -13,11 +14,12 @@ import ConfettiAnimation from './components/ConfettiAnimation';
 import FailAnimation from './components/FailAnimation';
 import DynamicOrbs from './components/DynamicOrbs';
 import Navigation from './components/Navigation';
-import { Guide, Winner, Loser, EliteSpiral, ADMIN_PASSWORD } from './config/data';
+import { Guide, Winner, Loser, EliteSpiral } from './config/data';
 
 type AppTab = 'selection' | 'winners' | 'elite-spiral';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentTab, setCurrentTab] = useState<AppTab>('selection');
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [currentWinner, setCurrentWinner] = useState<Winner | null>(null);
@@ -34,6 +36,24 @@ function App() {
   const [isWinHistoryDashboardOpen, setIsWinHistoryDashboardOpen] = useState(false);
   const [isExportDataOpen, setIsExportDataOpen] = useState(false);
   const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
+
+  // Handle login
+  const handleLogin = (success: boolean) => {
+    if (success) {
+      setIsLoggedIn(true);
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentTab('selection');
+  };
+
+  // Show login portal if not logged in
+  if (!isLoggedIn) {
+    return <LoginPortal onLogin={handleLogin} />;
+  }
 
   // Load winners from Supabase on component mount
   useEffect(() => {
@@ -358,6 +378,33 @@ function App() {
       localStorage.setItem('stitchAndPitchEliteWinners', JSON.stringify(updatedEliteWinners));
     }
   };
+
+  const deleteEliteWinnerFromDatabase = async (eliteWinnerId: string) => {
+    try {
+      const { error } = await supabase
+        .from('elite_spiral')
+        .delete()
+        .eq('id', eliteWinnerId);
+
+      if (error) {
+        console.error('Error deleting elite winner from database:', error);
+        // Fallback to localStorage
+        const updatedEliteWinners = eliteWinners.filter(elite => elite.id !== eliteWinnerId);
+        setEliteWinners(updatedEliteWinners);
+        localStorage.setItem('stitchAndPitchEliteWinners', JSON.stringify(updatedEliteWinners));
+      } else {
+        // Reload elite winners from database to get the latest data
+        await loadEliteWinners();
+      }
+    } catch (error) {
+      console.error('Error connecting to database:', error);
+      // Fallback to localStorage
+      const updatedEliteWinners = eliteWinners.filter(elite => elite.id !== eliteWinnerId);
+      setEliteWinners(updatedEliteWinners);
+      localStorage.setItem('stitchAndPitchEliteWinners', JSON.stringify(updatedEliteWinners));
+    }
+  };
+  
   const handleGuideSelected = (guide: Guide) => {
     // Extract chat IDs from the guide object if they exist
     const { chatIds, ...guideData } = guide as Guide & { chatIds?: string[] };
@@ -424,10 +471,6 @@ function App() {
     setFailedGuideName('');
   };
 
-  const validatePassword = (password: string): boolean => {
-    return password === ADMIN_PASSWORD;
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center">
@@ -460,6 +503,7 @@ function App() {
         onOpenWinHistoryDashboard={() => setIsWinHistoryDashboardOpen(true)}
         onOpenExportData={() => setIsExportDataOpen(true)}
         onOpenBackupRestore={() => setIsBackupRestoreOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}
@@ -481,7 +525,9 @@ function App() {
         {currentTab === 'winners' && (
           <WinnerHistory 
             winners={winners} 
+            eliteWinners={eliteWinners}
             onDeleteWinner={deleteWinnerFromDatabase}
+            onDeleteEliteWinner={deleteEliteWinnerFromDatabase}
           />
         )}
       </div>
@@ -503,15 +549,11 @@ function App() {
           setSelectedChatIds([]);
         }}
         onConfirm={(action) => {
-          const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
-          if (passwordInput && validatePassword(passwordInput.value)) {
-            handlePasswordConfirm(action);
-          } else {
-            alert('Invalid password. Access denied.');
-          }
+          handlePasswordConfirm(action);
         }}
         guideName={selectedGuide?.name || ''}
         chatIds={selectedChatIds}
+        skipPasswordValidation={true}
       />
 
       {/* New Feature Modals */}

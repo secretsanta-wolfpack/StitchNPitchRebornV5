@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Trophy, Calendar, User, Building, UserCheck, Trash2, AlertTriangle, X, Filter, Users, Star, MessageCircle, Eye, EyeOff } from 'lucide-react';
-import { Winner, ADMIN_PASSWORD, DEPARTMENTS } from '../config/data';
+import { Trophy, Calendar, User, Building, UserCheck, Trash2, AlertTriangle, X, Filter, Users, Star, MessageCircle, Eye, EyeOff, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Winner, EliteSpiral, DEPARTMENTS } from '../config/data';
 
 interface WinnerHistoryProps {
   winners: Winner[];
+  eliteWinners: EliteSpiral[];
   onDeleteWinner?: (winnerId: string) => void;
+  onDeleteEliteWinner?: (eliteWinnerId: string) => void;
 }
 
 interface DeleteModalProps {
@@ -12,25 +14,19 @@ interface DeleteModalProps {
   onClose: () => void;
   onConfirm: () => void;
   winnerName: string;
+  isElite?: boolean;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, winnerName }) => {
-  const [password, setPassword] = useState('');
+const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, winnerName, isElite = false }) => {
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      onConfirm();
-      setPassword('');
-      setError('');
-    } else {
-      setError('Invalid password. Access denied.');
-    }
+    onConfirm();
+    setError('');
   };
 
   const handleClose = () => {
-    setPassword('');
     setError('');
     onClose();
   };
@@ -45,7 +41,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, w
             <div className="p-2 bg-red-500 bg-opacity-20 rounded-xl backdrop-blur-sm">
               <AlertTriangle className="w-8 h-8 text-red-300" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Delete Winner</h2>
+            <h2 className="text-2xl font-bold text-white">Delete {isElite ? 'Elite Winner' : 'Winner'}</h2>
           </div>
           <button
             onClick={handleClose}
@@ -57,29 +53,17 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, w
 
         <div className="mb-6">
           <p className="text-white text-opacity-90 mb-4">
-            Are you sure you want to delete <span className="font-semibold text-purple-200">{winnerName}</span> from the winners list? This action cannot be undone.
+            Are you sure you want to delete <span className="font-semibold text-purple-200">{winnerName}</span> from the {isElite ? 'elite winners' : 'winners'} list? This action cannot be undone.
           </p>
           
           <form onSubmit={handleSubmit}>
-            <label htmlFor="delete-password" className="block text-sm font-medium text-white text-opacity-90 mb-2">
-              Admin Password
-            </label>
-            <input
-              type="password"
-              id="delete-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-white placeholder-white placeholder-opacity-60 backdrop-blur-sm"
-              placeholder="Enter admin password"
-            />
-            
             {error && (
               <div className="mt-3 p-3 bg-red-500 bg-opacity-20 border border-red-400 border-opacity-50 text-red-200 rounded-lg backdrop-blur-sm">
                 {error}
               </div>
             )}
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-4">
               <button
                 type="button"
                 onClick={handleClose}
@@ -91,7 +75,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, w
                 type="submit"
                 className="flex-1 py-3 px-4 bg-red-600 bg-opacity-80 text-white rounded-xl hover:bg-opacity-90 transition-colors backdrop-blur-sm border border-red-500 border-opacity-50"
               >
-                Delete Winner
+                Delete {isElite ? 'Elite Winner' : 'Winner'}
               </button>
             </div>
           </form>
@@ -101,35 +85,53 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, w
   );
 };
 
-const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }) => {
+const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, onDeleteWinner, onDeleteEliteWinner }) => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('All');
+  const [showEliteWinners, setShowEliteWinners] = useState(false);
   const [expandedWinner, setExpandedWinner] = useState<string | null>(null);
   const [deleteModalState, setDeleteModalState] = useState<{
     isOpen: boolean;
     winnerId: string | null;
     winnerName: string;
+    isElite: boolean;
   }>({
     isOpen: false,
     winnerId: null,
-    winnerName: ''
+    winnerName: '',
+    isElite: false
   });
 
   const handleDeleteClick = (winner: Winner) => {
     setDeleteModalState({
       isOpen: true,
       winnerId: winner.id || '',
-      winnerName: winner.name
+      winnerName: winner.name,
+      isElite: false
+    });
+  };
+
+  const handleEliteDeleteClick = (eliteWinner: EliteSpiral) => {
+    setDeleteModalState({
+      isOpen: true,
+      winnerId: eliteWinner.id || '',
+      winnerName: eliteWinner.name,
+      isElite: true
     });
   };
 
   const handleDeleteConfirm = () => {
-    if (deleteModalState.winnerId && onDeleteWinner) {
-      onDeleteWinner(deleteModalState.winnerId);
+    if (deleteModalState.winnerId) {
+      if (deleteModalState.isElite && onDeleteEliteWinner) {
+        onDeleteEliteWinner(deleteModalState.winnerId);
+      } else if (!deleteModalState.isElite && onDeleteWinner) {
+        onDeleteWinner(deleteModalState.winnerId);
+      }
     }
     setDeleteModalState({
       isOpen: false,
       winnerId: null,
-      winnerName: ''
+      winnerName: '',
+      isElite: false
     });
   };
 
@@ -137,7 +139,8 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
     setDeleteModalState({
       isOpen: false,
       winnerId: null,
-      winnerName: ''
+      winnerName: '',
+      isElite: false
     });
   };
 
@@ -145,14 +148,17 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
     setExpandedWinner(expandedWinner === winnerId ? null : winnerId);
   };
 
+  // Get current data based on toggle
+  const currentData = showEliteWinners ? eliteWinners : winners;
+
   // Filter winners based on selected department
-  const filteredWinners = selectedDepartment === 'All' 
-    ? winners 
-    : winners.filter(winner => winner.department === selectedDepartment);
+  const filteredData = selectedDepartment === 'All' 
+    ? currentData 
+    : currentData.filter(item => item.department === selectedDepartment);
 
   // Get department counts for display
   const departmentCounts = DEPARTMENTS.reduce((acc, dept) => {
-    acc[dept] = winners.filter(winner => winner.department === dept).length;
+    acc[dept] = currentData.filter(item => item.department === dept).length;
     return acc;
   }, {} as Record<string, number>);
 
@@ -178,16 +184,64 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500 bg-opacity-30 rounded-full mb-4 backdrop-blur-sm">
-            <Trophy className="w-8 h-8 text-yellow-300" />
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 backdrop-blur-sm ${
+            showEliteWinners 
+              ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+              : 'bg-yellow-500 bg-opacity-30'
+          }`}>
+            {showEliteWinners ? (
+              <Crown className="w-8 h-8 text-white" />
+            ) : (
+              <Trophy className="w-8 h-8 text-yellow-300" />
+            )}
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            🏆 Winner History
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 flex items-center justify-center gap-4">
+            {showEliteWinners ? (
+              <>
+                <Crown className="w-12 h-12 text-yellow-400" />
+                Elite Winners History
+                <Crown className="w-12 h-12 text-yellow-400" />
+              </>
+            ) : (
+              <>
+                🏆 Winner History
+              </>
+            )}
           </h1>
           <p className="text-xl text-purple-200">
-            {winners.length} {winners.length === 1 ? 'Winner' : 'Winners'} Selected So Far
+            {currentData.length} {showEliteWinners ? 'Elite' : ''} {currentData.length === 1 ? 'Winner' : 'Winners'} Selected So Far
           </p>
         </div>
+
+        {/* Toggle for Winner Type */}
+        {eliteWinners.length > 0 && (
+          <div className="flex justify-center mb-8">
+            <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-2 flex gap-2">
+              <button
+                onClick={() => setShowEliteWinners(false)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                  !showEliteWinners
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-blue-200 hover:text-white hover:bg-white hover:bg-opacity-10'
+                }`}
+              >
+                <Trophy className="w-5 h-5" />
+                Regular Winners
+              </button>
+              <button
+                onClick={() => setShowEliteWinners(true)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                  showEliteWinners
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg'
+                    : 'text-yellow-200 hover:text-white hover:bg-white hover:bg-opacity-10'
+                }`}
+              >
+                <Crown className="w-5 h-5" />
+                Elite Winners
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Department Filter Buttons */}
         <div className="mb-8">
@@ -219,7 +273,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
                     ? 'bg-white bg-opacity-20 text-white' 
                     : 'bg-yellow-500 bg-opacity-30 text-yellow-200'
                 }`}>
-                  {winners.length}
+                  {currentData.length}
                 </span>
               </div>
               
@@ -275,7 +329,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
             <div className="inline-flex items-center gap-2 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full backdrop-blur-sm">
               <Users className="w-4 h-4" />
               <span className="font-medium">
-                Showing {filteredWinners.length} {filteredWinners.length === 1 ? 'winner' : 'winners'}
+                Showing {filteredData.length} {showEliteWinners ? 'elite' : ''} {filteredData.length === 1 ? 'winner' : 'winners'}
                 {selectedDepartment !== 'All' && ` from ${selectedDepartment}`}
               </span>
             </div>
@@ -283,60 +337,74 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
         </div>
 
         {/* Winners List */}
-        {filteredWinners.length === 0 ? (
+        {filteredData.length === 0 ? (
           <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-12 text-center border border-white border-opacity-20">
-            <Trophy className="w-16 h-16 text-white opacity-50 mx-auto mb-4" />
+            {showEliteWinners ? (
+              <Crown className="w-16 h-16 text-white opacity-50 mx-auto mb-4" />
+            ) : (
+              <Trophy className="w-16 h-16 text-white opacity-50 mx-auto mb-4" />
+            )}
             <h2 className="text-2xl font-semibold text-white mb-2">
-              {selectedDepartment === 'All' ? 'No Winners Yet' : `No Winners from ${selectedDepartment}`}
+              {selectedDepartment === 'All' ? `No ${showEliteWinners ? 'Elite ' : ''}Winners Yet` : `No ${showEliteWinners ? 'Elite ' : ''}Winners from ${selectedDepartment}`}
             </h2>
             <p className="text-purple-200">
               {selectedDepartment === 'All' 
-                ? 'Start selecting guides to see winners here!' 
-                : `No guides from ${selectedDepartment} have been selected as winners yet.`
+                ? `Start selecting guides to see ${showEliteWinners ? 'elite ' : ''}winners here!` 
+                : `No guides from ${selectedDepartment} have been selected as ${showEliteWinners ? 'elite ' : ''}winners yet.`
               }
             </p>
           </div>
         ) : (
           <div className="grid gap-6">
-            {filteredWinners.map((winner, index) => (
+            {filteredData.map((item, index) => (
               <div
-                key={`${winner.id}-${winner.timestamp}`}
-                className="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-6 shadow-xl transform transition-all hover:scale-105 border border-white border-opacity-20"
+                key={`${item.id}-${item.timestamp}`}
+                className={`bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-6 shadow-xl transform transition-all hover:scale-105 border border-white border-opacity-20 ${
+                  showEliteWinners ? 'border-yellow-400 border-opacity-30' : ''
+                }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-yellow-500 bg-opacity-30 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm ${
+                      showEliteWinners 
+                        ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+                        : 'bg-yellow-500 bg-opacity-30'
+                    }`}>
                       <span className="text-yellow-200 font-bold text-lg">
                         #{selectedDepartment === 'All' 
-                          ? winners.findIndex(w => w.id === winner.id) + 1
+                          ? currentData.findIndex(w => w.id === item.id) + 1
                           : index + 1
                         }
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white">{winner.name}</h3>
+                      <h3 className="text-2xl font-bold text-white">{item.name}</h3>
                       <div className="flex items-center gap-2 text-purple-200">
                         <Calendar className="w-4 h-4" />
-                        <span>{new Date(winner.timestamp).toLocaleString()}</span>
+                        <span>{new Date(item.timestamp).toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Trophy className="w-8 h-8 text-yellow-400" />
-                    {winner.chat_ids && winner.chat_ids.length > 0 && (
+                    {showEliteWinners ? (
+                      <Crown className="w-8 h-8 text-yellow-400" />
+                    ) : (
+                      <Trophy className="w-8 h-8 text-yellow-400" />
+                    )}
+                    {item.chat_ids && item.chat_ids.length > 0 && (
                       <button
-                        onClick={() => toggleWinnerExpansion(winner.id || '')}
+                        onClick={() => toggleWinnerExpansion(item.id || '')}
                         className="p-2 bg-purple-500 bg-opacity-20 text-purple-300 rounded-lg hover:bg-purple-500 hover:text-white transition-all"
                         title="View Chat IDs"
                       >
-                        {expandedWinner === winner.id ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {expandedWinner === item.id ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     )}
-                    {onDeleteWinner && (
+                    {((showEliteWinners && onDeleteEliteWinner) || (!showEliteWinners && onDeleteWinner)) && (
                       <button
-                        onClick={() => handleDeleteClick(winner)}
+                        onClick={() => showEliteWinners ? handleEliteDeleteClick(item as EliteSpiral) : handleDeleteClick(item as Winner)}
                         className="p-2 bg-red-500 bg-opacity-20 text-red-300 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                        title="Delete this winner"
+                        title={`Delete this ${showEliteWinners ? 'elite winner' : 'winner'}`}
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -349,7 +417,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
                     <Building className="w-5 h-5 text-purple-300" />
                     <div>
                       <div className="font-medium text-purple-200">Department</div>
-                      <div className="text-lg text-white">{winner.department}</div>
+                      <div className="text-lg text-white">{item.department}</div>
                     </div>
                   </div>
                   
@@ -357,20 +425,20 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
                     <UserCheck className="w-5 h-5 text-green-300" />
                     <div>
                       <div className="font-medium text-purple-200">Supervisor</div>
-                      <div className="text-lg text-white">{winner.supervisor}</div>
+                      <div className="text-lg text-white">{item.supervisor}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Chat IDs Section */}
-                {expandedWinner === winner.id && winner.chat_ids && winner.chat_ids.length > 0 && (
+                {expandedWinner === item.id && item.chat_ids && item.chat_ids.length > 0 && (
                   <div className="mt-4 bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <MessageCircle className="w-5 h-5 text-purple-300" />
                       <h4 className="font-medium text-purple-200">Chat IDs</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {winner.chat_ids.map((chatId, chatIndex) => (
+                      {item.chat_ids.map((chatId, chatIndex) => (
                         <div key={chatIndex} className="bg-white bg-opacity-10 rounded-lg p-3">
                           <div className="text-xs text-purple-200 mb-1">Chat ID {chatIndex + 1}</div>
                           <div className="text-white font-mono text-sm">{chatId}</div>
@@ -389,6 +457,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, onDeleteWinner }
           onClose={handleDeleteModalClose}
           onConfirm={handleDeleteConfirm}
           winnerName={deleteModalState.winnerName}
+          isElite={deleteModalState.isElite}
         />
       </div>
     </div>

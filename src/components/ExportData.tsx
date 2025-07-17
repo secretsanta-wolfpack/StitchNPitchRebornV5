@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Download, FileText, FileSpreadsheet, Calendar, Users, Trophy, X, CheckCircle, Lock } from 'lucide-react';
-import { Winner, Loser, EliteSpiral, GUIDES, ADMIN_PASSWORD } from '../config/data';
+import { Winner, Loser, EliteSpiral, GUIDES } from '../config/data';
 import jsPDF from 'jspdf';
+
+// Admin password for export operations
+const EXPORT_ADMIN_PASSWORD = "InternationalMessaging@20";
 
 interface ExportDataProps {
   isOpen: boolean;
@@ -83,7 +86,7 @@ const ExportData: React.FC<ExportDataProps> = ({ isOpen, onClose, winners, loser
   ];
 
   const validatePassword = (inputPassword: string): boolean => {
-    return inputPassword === ADMIN_PASSWORD;
+    return inputPassword === EXPORT_ADMIN_PASSWORD;
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {

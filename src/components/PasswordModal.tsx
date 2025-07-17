@@ -7,6 +7,7 @@ interface PasswordModalProps {
   onConfirm: (action: 'pass' | 'fail') => void;
   guideName: string;
   chatIds?: string[];
+  skipPasswordValidation?: boolean;
 }
 
 const PasswordModal: React.FC<PasswordModalProps> = ({
@@ -14,9 +15,9 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
   onClose,
   onConfirm,
   guideName,
-  chatIds = []
+  chatIds = [],
+  skipPasswordValidation = false
 }) => {
-  const [password, setPassword] = useState('');
   const [selectedAction, setSelectedAction] = useState<'pass' | 'fail' | null>(null);
   const [error, setError] = useState('');
 
@@ -27,28 +28,21 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
       return;
     }
     
-    if (!password.trim()) {
-      setError('Please enter the password');
-      return;
-    }
-    
     onConfirm(selectedAction);
-    setPassword('');
     setSelectedAction(null);
     setError('');
   };
 
   const handleClose = () => {
-    setPassword('');
     setSelectedAction(null);
     setError('');
     onClose();
   };
 
-
   const handleActionSelect = (action: 'pass' | 'fail') => {
     setSelectedAction(action);
   };
+  
   if (!isOpen) return null;
 
   return (
@@ -106,20 +100,6 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-white text-opacity-90 mb-2">
-              Admin Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white placeholder-white placeholder-opacity-60 backdrop-blur-sm"
-              placeholder="Enter admin password"
-            />
-          </div>
-
           {error && (
             <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-400 border-opacity-50 text-red-200 rounded-lg backdrop-blur-sm">
               {error}

@@ -367,37 +367,6 @@ const EliteSpiralPanel: React.FC<EliteSpiralPanelProps> = ({ winners, eliteWinne
           </div>
         )}
 
-        {/* Elite Spiral History */}
-        {eliteWinners.length > 0 && (
-          <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-2xl p-6 border border-white border-opacity-20">
-            <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-              <Crown className="w-6 h-6 text-yellow-400" />
-              Elite Spiral History ({eliteWinners.length})
-            </h3>
-            <div className="grid gap-4">
-              {eliteWinners.slice(-5).reverse().map((entry, index) => (
-                <div key={entry.id} className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-lg font-semibold text-white">{entry.name}</h4>
-                      <p className="text-purple-200">{entry.department} • {entry.supervisor}</p>
-                      <p className="text-sm text-purple-300">{new Date(entry.timestamp).toLocaleString()}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-yellow-400 font-bold">#{eliteWinners.length - index}</div>
-                      {entry.chat_ids && entry.chat_ids.length > 0 && (
-                        <div className="text-xs text-purple-300 mt-1">
-                          {entry.chat_ids.length} Chat ID{entry.chat_ids.length !== 1 ? 's' : ''}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Password Modal */}
         <PasswordModal
           isOpen={isPasswordModalOpen}

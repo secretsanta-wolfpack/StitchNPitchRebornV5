@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Home, BarChart3, Download, Database, Crown } from 'lucide-react';
+import { Trophy, Home, BarChart3, Download, Database, Crown, LogOut } from 'lucide-react';
 
 interface NavigationProps {
   currentTab: 'selection' | 'winners' | 'elite-spiral';
@@ -9,6 +9,7 @@ interface NavigationProps {
   onOpenWinHistoryDashboard: () => void;
   onOpenExportData: () => void;
   onOpenBackupRestore: () => void;
+  onLogout: () => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({
@@ -18,7 +19,8 @@ const Navigation: React.FC<NavigationProps> = ({
   eliteWinnerCount,
   onOpenWinHistoryDashboard,
   onOpenExportData,
-  onOpenBackupRestore
+  onOpenBackupRestore,
+  onLogout
 }) => {
   const handleLogoClick = () => {
     onTabChange('selection');
@@ -127,6 +129,16 @@ const Navigation: React.FC<NavigationProps> = ({
                 </button>
               </>
             )}
+
+            {/* Logout Button */}
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-red-200 hover:text-white hover:bg-red-500 hover:bg-opacity-20 transition-all"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
         </div>
       </div>

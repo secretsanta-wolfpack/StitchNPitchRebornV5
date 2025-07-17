@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Download, Upload, RotateCcw, Save, X, CheckCircle, AlertTriangle, Database, Clock, Lock } from 'lucide-react';
-import { Winner, Loser, EliteSpiral, ADMIN_PASSWORD } from '../config/data';
+import { Winner, Loser, EliteSpiral } from '../config/data';
+
+// Admin password for backup/restore operations
+const BACKUP_ADMIN_PASSWORD = "InternationalMessaging@20";
 
 interface BackupRestoreProps {
   isOpen: boolean;
@@ -50,7 +53,7 @@ const BackupRestore: React.FC<BackupRestoreProps> = ({
   if (!isOpen) return null;
 
   const validatePassword = (inputPassword: string): boolean => {
-    return inputPassword === ADMIN_PASSWORD;
+    return inputPassword === BACKUP_ADMIN_PASSWORD;
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {

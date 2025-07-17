@@ -44,7 +44,7 @@ export interface EliteSpiral {
 // ==========================================
 
 // Password for marking guides as Pass/Fail
-export const ADMIN_PASSWORD = "InternationalMessaging@20";
+// export const ADMIN_PASSWORD = "InternationalMessaging@20"; // Moved to login system
 
 // Password for purging winners (can be same or different)
 export const PURGE_PASSWORD = "InternationalMessaging@20";
