@@ -461,6 +461,10 @@ const WinHistoryDashboard: React.FC<WinHistoryDashboardProps> = ({
               <div className="bg-white bg-opacity-10 rounded-lg p-3 md:p-4">
                 <p className="font-semibold text-sm md:text-base">
                   {showEliteAnalytics ? 'Elite Progress' : 'Contest Progress'}
+                </p>
+                <p className="text-xs md:text-sm opacity-90">
+                  Track your {showEliteAnalytics ? 'elite winner' : 'contest'} performance over time
+                </p>
       </div>
 
       {/* Confetti Animation */}
