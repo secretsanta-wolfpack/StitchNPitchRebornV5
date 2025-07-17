@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Filter, Users, Star, Trophy, MessageCircle, Plus, Trash2, Shuffle, Crown, X } from 'lucide-react';
-import { Winner, EliteSpiral, ADMIN_PASSWORD } from '../config/data';
+import { Winner, EliteSpiral } from '../config/data';
 import { supabase } from '../lib/supabase';
 import PasswordModal from './PasswordModal';
+
+const ADMIN_PASSWORD = 'InternationalMessaging@20';
 
 interface EliteSpiralPanelProps {
   winners: Winner[];
