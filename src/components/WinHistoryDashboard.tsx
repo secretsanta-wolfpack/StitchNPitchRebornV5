@@ -426,9 +426,9 @@ const WinHistoryDashboard: React.FC<WinHistoryDashboardProps> = ({
                           />
                           <div className="flex-1 min-w-0">
                             <div className="text-white font-medium text-sm md:text-base truncate" style={{ color: '#ffffff' }}>{dept.name}</div>
+                          </div>
                             <div className={`text-xs md:text-sm ${showEliteAnalytics ? 'text-orange-200' : 'text-blue-200'}`}>
                               {dept.wins} {showEliteAnalytics ? 'elite wins' : 'wins'} ({dept.percentage}%)
-                            </div>
                             </div>
                           </div>
                         </div>
