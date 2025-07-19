@@ -31,11 +31,19 @@ function App() {
   const [showFailAnimation, setShowFailAnimation] = useState(false);
   const [failedGuideName, setFailedGuideName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
   
   // New modal states
   const [isWinHistoryDashboardOpen, setIsWinHistoryDashboardOpen] = useState(false);
   const [isExportDataOpen, setIsExportDataOpen] = useState(false);
   const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
+
+  // Load winners from Supabase on component mount
+  useEffect(() => {
+    loadWinners();
+    loadLosers();
+    loadEliteWinners();
+  }, []);
 
   // Handle login
   const handleLogin = (success: boolean) => {
@@ -49,18 +57,6 @@ function App() {
     setIsLoggedIn(false);
     setCurrentTab('selection');
   };
-
-  // Show login portal if not logged in
-  if (!isLoggedIn) {
-    return <LoginPortal onLogin={handleLogin} />;
-  }
-
-  // Load winners from Supabase on component mount
-  useEffect(() => {
-    loadWinners();
-    loadLosers();
-    loadEliteWinners();
-  }, []);
 
   const loadWinners = async () => {
     try {
@@ -413,8 +409,6 @@ function App() {
     setIsPasswordModalOpen(true);
   };
 
-  const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
-
   const handlePasswordConfirm = async (action: 'pass' | 'fail') => {
     setIsPasswordModalOpen(false);
     
@@ -470,6 +464,11 @@ function App() {
     setShowFailAnimation(false);
     setFailedGuideName('');
   };
+
+  // Show login portal if not logged in
+  if (!isLoggedIn) {
+    return <LoginPortal onLogin={handleLogin} />;
+  }
 
   if (loading) {
     return (
