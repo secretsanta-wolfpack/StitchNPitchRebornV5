@@ -348,12 +348,12 @@ const WinHistoryDashboard: React.FC<WinHistoryDashboardProps> = ({
                         backgroundColor: 'rgba(0,0,0,0.8)', 
                         border: 'none', 
                         borderRadius: '12px',
-                        color: 'white',
+                        color: '#ffffff',
                         fontSize: '14px',
                         fontWeight: 'bold'
                       }}
                       formatter={(value, name) => [value, showEliteAnalytics ? 'Elite Wins' : 'Wins']}
-                      labelStyle={{ color: 'white', fontWeight: 'bold' }}
+                      labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
                     />
                     <Bar 
                       dataKey="wins" 
@@ -406,11 +406,11 @@ const WinHistoryDashboard: React.FC<WinHistoryDashboardProps> = ({
                             backgroundColor: 'rgba(0,0,0,0.8)', 
                             border: 'none', 
                             borderRadius: '12px',
-                            color: 'white',
+                            color: '#ffffff',
                             fontSize: '14px',
                             fontWeight: 'bold'
                           }}
-                          labelStyle={{ color: 'white', fontWeight: 'bold' }}
+                          labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
@@ -424,7 +424,7 @@ const WinHistoryDashboard: React.FC<WinHistoryDashboardProps> = ({
                             className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0"
                             style={{ backgroundColor: dept.color }}
                           />
-                          <div className="flex-1 min-w-0">
+                              <div className="text-white font-medium text-sm md:text-base truncate" style={{ color: '#ffffff' }}>{dept.name}</div>
                             <div className="text-white font-medium text-sm md:text-base truncate">{dept.name}</div>
                             <div className={`text-xs md:text-sm ${showEliteAnalytics ? 'text-orange-200' : 'text-blue-200'}`}>
                               {dept.wins} {showEliteAnalytics ? 'elite wins' : 'wins'} ({dept.percentage}%)
